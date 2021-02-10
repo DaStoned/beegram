@@ -1,0 +1,44 @@
+# Partition scheme version 1
+#
+# When updating this scheme you must change scheme version:
+#
+# 1. Bump the partiton scheme version
+# 2. Update the provisioning scripts to write the new scheme version
+#   to partition "dev_id".
+#
+# Note that updating firmware which changes the partition scheme on a previously
+# provisioned device is not a trivial operation and cannot be done remotely.
+# The steps for updating existing devices using UART bootloader or debugger are:
+#
+# 1. If you're updating firmware on any device with an old partitioning scheme,
+#   this device must have it's Flash erased.
+# 2. After erasing the device must be provisioned again. Presumably it'll
+#   restore its keypair and certificate from storage, but config will be lost.
+# 3. Finally, you can update it's firmware.
+
+# Flash memory map (4MB of SPI Flash). Partitions marked (external) are
+# either immutable or defined elsewhere (i.e. by bootloader / partition table
+# menuconfig configuration option CONFIG_PARTITION_TABLE_OFFSET).
+#
+#   Start  |  Length  | Partition
+# ---------+--------- +----------------------
+#   0x0000 |   0x1000 | (external) Secure boot IV and application image signature
+#   0x1000 |   0xE000 | (external) Bootloader
+#   0xF000 |   0x1000 | (external) Partition table
+# ---------+--------- +----------------------
+#  0x10000 |   0x4000 | NVS data "dev_id" (ID, certs, keys and factory conf). R/O.
+#  0x14000 |   0x1000 | NVS encryption keys
+#  0x15000 |   0x2000 | OTA data (stores active app slot)
+#  0x17000 |   0x1000 | PHY initialization data
+#  0x18000 |   0x8000 | NVS data "nvs" (stores main configuration)
+#  0x20000 | 0x1F0000 | Main application image, OTA slot 0 (1984 KB)
+# 0x210000 | 0x1F0000 | Main application image, OTA slot 1 (1984 KB)
+
+# Name, Type, SubType, Offset, Size, Flags
+dev_id,data,nvs,0x10000,0x4000
+nvs_key,data,nvs_keys,0x14000,0x1000
+otadata,data,ota,0x15000,0x2000
+phy_init,data,phy,0x17000,0x1000
+nvs,data,nvs,0x18000,0x8000
+app0,app,ota_0,0x20000,0x1F0000
+app1,app,ota_1,0x210000,0x1F0000
