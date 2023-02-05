@@ -4,5 +4,34 @@
 			"path": "../.."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"array": "cpp",
+			"*.tcc": "cpp",
+			"memory": "cpp",
+			"future": "cpp",
+			"istream": "cpp",
+			"functional": "cpp",
+			"tuple": "cpp",
+			"utility": "cpp",
+			"ratio": "cpp",
+			"system_error": "cpp",
+			"regex": "cpp",
+			"type_traits": "cpp",
+			"chrono": "cpp",
+			"compare": "cpp",
+			"vector": "cpp",
+			"atomic": "cpp",
+			"complex": "cpp",
+			"string_view": "cpp",
+			"fstream": "cpp",
+			"ostream": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"bitset": "cpp",
+			"string": "cpp",
+			"limits": "cpp",
+			"*.inc": "cpp"
+		}
+	}
 }

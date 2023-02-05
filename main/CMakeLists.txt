@@ -3,5 +3,7 @@ idf_component_register(
         "main.cpp"
         "App.cpp"
         "Cloud.cpp"
+        "driver/Gpio.cpp"
+        "driver/Hx711.cpp"
     INCLUDE_DIRS
-        "")
+        ".")
