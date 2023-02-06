@@ -69,8 +69,7 @@ bool Gpio::set(bool value) {
 }
 
 bool Gpio::get() {
-    assert(false);
-    return false;
+    return gpio_get_level(static_cast<gpio_num_t>(_pin));
 }
 
 bool Gpio::toggle() {

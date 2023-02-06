@@ -13,6 +13,7 @@ Cloud cloud;
 static constexpr IGpio::Pin PIN_RED = 0;
 static constexpr IGpio::Pin PIN_GREEN = 2;
 static constexpr IGpio::Pin PIN_BLUE = 4;
+static constexpr IGpio::Pin PIN_BUTTON = 18;
 
 void App::run() {
     unsigned int i = 0;
@@ -28,11 +29,16 @@ void App::run() {
     if (!ledBlue) {
         err("Fail create LED red");
     }
+    IGpio::Hnd btn = IGpio::create(PIN_BUTTON, IGpio::Way::IN, IGpio::Mode::PUSH_PULL, IGpio::Pull::UP);
+    if (!btn) {
+        err("Fail create button");
+    }
     
 
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         cloud.cloudStuff();
+        info("Button: %s", btn->get() ? "released" : "pressed");
 
         switch ((i % 6) / 2) {
         case 0:

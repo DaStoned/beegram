@@ -19,12 +19,12 @@ public:
         IN       = 0b01,
         OUT      = 0b10,
     };
-    /// @brief Choose output mode as push-pull or open drain
+    /// @brief Choose output mode as push-pull or open drain. Ignored for inputs.
     enum class Mode {
         PUSH_PULL,
         OPEN_DRAIN
     };
-    /// @brief Enable pull-up or pull-down resistors (or both) in open drain 
+    /// @brief Enable pull-up or pull-down resistors (or both)
     enum Pull : uint8_t {
         NONE = 0b00, ///< No pull-up or pull-down
         UP   = 0b01, ///< Enable pull-up resistor
