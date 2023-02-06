@@ -10,26 +10,26 @@ namespace beegram {
 
 Cloud cloud;
 
-static constexpr IGpio::Pin PIN_RED = 0;
-static constexpr IGpio::Pin PIN_GREEN = 2;
-static constexpr IGpio::Pin PIN_BLUE = 4;
-static constexpr IGpio::Pin PIN_BUTTON = 18;
+static constexpr Gpio::Pin PIN_RED = 0;
+static constexpr Gpio::Pin PIN_GREEN = 2;
+static constexpr Gpio::Pin PIN_BLUE = 4;
+static constexpr Gpio::Pin PIN_BUTTON = 18;
 
 void App::run() {
     unsigned int i = 0;
-    IGpio::Hnd ledRed = IGpio::create(PIN_RED, IGpio::Way::OUT, IGpio::Mode::PUSH_PULL, IGpio::Pull::NONE);
+    Gpio::Hnd ledRed = Gpio::create(PIN_RED, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledRed) {
         err("Fail create LED red");
     }
-    IGpio::Hnd ledGreen = IGpio::create(PIN_GREEN, IGpio::Way::OUT, IGpio::Mode::PUSH_PULL, IGpio::Pull::NONE);
+    Gpio::Hnd ledGreen = Gpio::create(PIN_GREEN, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledGreen) {
         err("Fail create LED green");
     }
-    IGpio::Hnd ledBlue = IGpio::create(PIN_BLUE, IGpio::Way::OUT, IGpio::Mode::PUSH_PULL, IGpio::Pull::NONE);
+    Gpio::Hnd ledBlue = Gpio::create(PIN_BLUE, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledBlue) {
         err("Fail create LED red");
     }
-    IGpio::Hnd btn = IGpio::create(PIN_BUTTON, IGpio::Way::IN, IGpio::Mode::PUSH_PULL, IGpio::Pull::UP);
+    Gpio::Hnd btn = Gpio::create(PIN_BUTTON, Gpio::Way::IN, Gpio::Mode::PUSH_PULL, Gpio::Pull::UP);
     if (!btn) {
         err("Fail create button");
     }

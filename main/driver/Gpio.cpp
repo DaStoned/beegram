@@ -6,9 +6,9 @@
 
 namespace beegram {
 
-class Gpio : public IGpio {
+class GpioImpl : public Gpio {
 public:
-    Gpio(Pin pin, bool initial_value)
+    GpioImpl(Pin pin, bool initial_value)
     : _pin(pin)
     , _set_value(initial_value)
     {
@@ -18,25 +18,26 @@ public:
     virtual bool set(bool value) override;
     virtual bool get() override;
     virtual bool toggle() override;
+    virtual void reset() override;
 private:
     Pin _pin;
     bool _set_value;
 };
 
-static gpio_mode_t modeTypeToIdf(IGpio::Way way, IGpio::Mode mode) {
-    if ((way & IGpio::Way::IN) && (way & IGpio::Way::OUT)) {
-        return (mode == IGpio::Mode::PUSH_PULL ? GPIO_MODE_INPUT_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
-    } else if (way & IGpio::Way::OUT) {
-        return (mode == IGpio::Mode::PUSH_PULL ? GPIO_MODE_OUTPUT : GPIO_MODE_OUTPUT_OD);
-    } else if (way & IGpio::Way::IN) {
+static gpio_mode_t modeTypeToIdf(Gpio::Way way, Gpio::Mode mode) {
+    if ((way & Gpio::Way::IN) && (way & Gpio::Way::OUT)) {
+        return (mode == Gpio::Mode::PUSH_PULL ? GPIO_MODE_INPUT_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
+    } else if (way & Gpio::Way::OUT) {
+        return (mode == Gpio::Mode::PUSH_PULL ? GPIO_MODE_OUTPUT : GPIO_MODE_OUTPUT_OD);
+    } else if (way & Gpio::Way::IN) {
         return GPIO_MODE_INPUT;
     } else {
-        assert(way == IGpio::Way::DISABLED);
+        assert(way == Gpio::Way::DISABLED);
         return GPIO_MODE_DISABLE;
     }
 }
 
-bool Gpio::config(Way way, Mode mode, Pull pull) {
+bool GpioImpl::config(Way way, Mode mode, Pull pull) {
     
     gpio_config_t iocfg = {};
     iocfg.pin_bit_mask = 1ULL << _pin;
@@ -57,7 +58,7 @@ bool Gpio::config(Way way, Mode mode, Pull pull) {
     }
 }
 
-bool Gpio::set(bool value) {
+bool GpioImpl::set(bool value) {
     esp_err_t ret = gpio_set_level(static_cast<gpio_num_t>(_pin), value ? 1 : 0);
     if (ESP_OK == ret) {
         _set_value = value;
@@ -68,16 +69,20 @@ bool Gpio::set(bool value) {
     }
 }
 
-bool Gpio::get() {
+bool GpioImpl::get() {
     return gpio_get_level(static_cast<gpio_num_t>(_pin));
 }
 
-bool Gpio::toggle() {
+bool GpioImpl::toggle() {
     return set(!_set_value);
 }
 
-IGpio::Hnd IGpio::create(IGpio::Pin pin, Way way, Mode mode, Pull pull) {
-    auto io = std::make_unique<Gpio>(pin, false);
+void GpioImpl::reset() {
+    gpio_reset_pin(static_cast<gpio_num_t>(_pin));
+}
+
+Gpio::Hnd Gpio::create(Gpio::Pin pin, Way way, Mode mode, Pull pull) {
+    auto io = std::make_unique<GpioImpl>(pin, false);
     if (io->config(way, mode, pull)) {
         return io;
     } else {

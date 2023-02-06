@@ -31,7 +31,8 @@
 			"bitset": "cpp",
 			"string": "cpp",
 			"limits": "cpp",
-			"*.inc": "cpp"
+			"*.inc": "cpp",
+			"random": "cpp"
 		}
 	}
 }

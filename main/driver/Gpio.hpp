@@ -9,10 +9,10 @@
 
 namespace beegram {
 
-class IGpio {
+class Gpio {
 public:
     using Pin = unsigned int;
-    using Hnd = std::unique_ptr<IGpio>;
+    using Hnd = std::unique_ptr<Gpio>;
     /// @brief Configure a pin direction as input or output (or both)
     enum Way : uint8_t {
         DISABLED = 0b00,
@@ -31,12 +31,16 @@ public:
         DOWN = 0b10, ///< Enable pull-down resistor
     };
 
-    virtual ~IGpio() = default;
+    virtual ~Gpio() = default;
 
     virtual bool config(Way way, Mode mode, Pull pull) = 0;
     virtual bool set(bool value) = 0;
     virtual bool get() = 0;
     virtual bool toggle() = 0;
+    /**
+     * Reset GPIO configuration back to its default state
+    */
+    virtual void reset() = 0;
 
     static Hnd create(Pin pin, Way way, Mode mode = Mode::PUSH_PULL, Pull pull = Pull::NONE);
 };
