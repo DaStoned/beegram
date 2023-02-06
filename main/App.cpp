@@ -17,19 +17,19 @@ static constexpr Gpio::Pin PIN_BUTTON = 18;
 
 void App::run() {
     unsigned int i = 0;
-    Gpio::Hnd ledRed = Gpio::create(PIN_RED, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
+    Gpio::Hnd ledRed = Gpio::create(PIN_RED, Gpio::Way::OUT, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledRed) {
         err("Fail create LED red");
     }
-    Gpio::Hnd ledGreen = Gpio::create(PIN_GREEN, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
+    Gpio::Hnd ledGreen = Gpio::create(PIN_GREEN, Gpio::Way::OUT, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledGreen) {
         err("Fail create LED green");
     }
-    Gpio::Hnd ledBlue = Gpio::create(PIN_BLUE, Gpio::Way::OUT, Gpio::Mode::PUSH_PULL, Gpio::Pull::NONE);
+    Gpio::Hnd ledBlue = Gpio::create(PIN_BLUE, Gpio::Way::OUT, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledBlue) {
         err("Fail create LED red");
     }
-    Gpio::Hnd btn = Gpio::create(PIN_BUTTON, Gpio::Way::IN, Gpio::Mode::PUSH_PULL, Gpio::Pull::UP);
+    Gpio::Hnd btn = Gpio::create(PIN_BUTTON, Gpio::Way::IN, Gpio::OutMode::PUSH_PULL, Gpio::Pull::UP);
     if (!btn) {
         err("Fail create button");
     }

@@ -14,7 +14,7 @@ public:
     {
         assert(GPIO_IS_VALID_GPIO(static_cast<int>(pin)));
     }
-    virtual bool config(Way way, Mode mode, Pull pull) override;
+    virtual bool config(Way way, OutMode outMode, Pull pull) override;
     virtual bool set(bool value) override;
     virtual bool get() override;
     virtual bool toggle() override;
@@ -24,11 +24,11 @@ private:
     bool _set_value;
 };
 
-static gpio_mode_t modeTypeToIdf(Gpio::Way way, Gpio::Mode mode) {
+static gpio_mode_t modeTypeToIdf(Gpio::Way way, Gpio::OutMode outMode) {
     if ((way & Gpio::Way::IN) && (way & Gpio::Way::OUT)) {
-        return (mode == Gpio::Mode::PUSH_PULL ? GPIO_MODE_INPUT_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
+        return (outMode == Gpio::OutMode::PUSH_PULL ? GPIO_MODE_INPUT_OUTPUT : GPIO_MODE_INPUT_OUTPUT_OD);
     } else if (way & Gpio::Way::OUT) {
-        return (mode == Gpio::Mode::PUSH_PULL ? GPIO_MODE_OUTPUT : GPIO_MODE_OUTPUT_OD);
+        return (outMode == Gpio::OutMode::PUSH_PULL ? GPIO_MODE_OUTPUT : GPIO_MODE_OUTPUT_OD);
     } else if (way & Gpio::Way::IN) {
         return GPIO_MODE_INPUT;
     } else {
@@ -37,11 +37,11 @@ static gpio_mode_t modeTypeToIdf(Gpio::Way way, Gpio::Mode mode) {
     }
 }
 
-bool GpioImpl::config(Way way, Mode mode, Pull pull) {
+bool GpioImpl::config(Way way, OutMode outMode, Pull pull) {
     
     gpio_config_t iocfg = {};
     iocfg.pin_bit_mask = 1ULL << _pin;
-    iocfg.mode = modeTypeToIdf(way, mode);
+    iocfg.mode = modeTypeToIdf(way, outMode);
     iocfg.pull_up_en = (pull & Pull::UP) ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
     iocfg.pull_down_en = (pull & Pull::DOWN) ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
     iocfg.intr_type = GPIO_INTR_DISABLE;
@@ -81,9 +81,9 @@ void GpioImpl::reset() {
     gpio_reset_pin(static_cast<gpio_num_t>(_pin));
 }
 
-Gpio::Hnd Gpio::create(Gpio::Pin pin, Way way, Mode mode, Pull pull) {
+Gpio::Hnd Gpio::create(Gpio::Pin pin, Way way, OutMode outMode, Pull pull) {
     auto io = std::make_unique<GpioImpl>(pin, false);
-    if (io->config(way, mode, pull)) {
+    if (io->config(way, outMode, pull)) {
         return io;
     } else {
         return nullptr;
