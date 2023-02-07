@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <cinttypes>
+#include <functional>
 
 namespace beegram {
 
@@ -18,6 +19,8 @@ public:
     using Pin = unsigned int;
     /// @brief Handle for a GPIO pin object
     using Hnd = std::unique_ptr<Gpio>;
+    /// @brief Function type that's accepted as interrupt service routine
+    using Isr = std::function<void()>;
     /// @brief Configure pin direction (can be simultaneously input and output)
     enum Way : uint8_t {
         DISABLED = 0b00, ///< Pin is not used
@@ -34,6 +37,14 @@ public:
         NONE = 0b00, ///< No pull-up or pull-down
         UP   = 0b01, ///< Enable pull-up resistor
         DOWN = 0b10, ///< Enable pull-down resistor
+    };
+    enum class IntrTrig {
+        DISABLED,
+        RISING,
+        FALLING,
+        ANY_EDGE,
+        LOW,
+        HIGH
     };
 
     /// @brief Mandatory virtual destructor
@@ -71,6 +82,8 @@ public:
      * Reset GPIO configuration back to its default state
     */
     virtual void reset() = 0;
+
+    virtual bool addIsr(Isr isr, IntrTrig type) = 0;
 
     /**
      * Allocate and configure a new instance of a GPIO pin object.

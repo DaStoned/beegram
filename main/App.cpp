@@ -27,11 +27,15 @@ void App::run() {
     }
     Gpio::Hnd ledBlue = Gpio::create(PIN_BLUE, Gpio::Way::OUT, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     if (!ledBlue) {
-        err("Fail create LED red");
+        err("Fail create LED blue");
     }
     Gpio::Hnd btn = Gpio::create(PIN_BUTTON, Gpio::Way::IN, Gpio::OutMode::PUSH_PULL, Gpio::Pull::UP);
     if (!btn) {
         err("Fail create button");
+    }
+    auto onEdge = [&]() { ledBlue->toggle(); }; // Not thread safe. No debouncing.
+    if (!btn->addIsr(onEdge, Gpio::IntrTrig::ANY_EDGE)) {
+        err("Fail add ISR to button");
     }
     
 
@@ -40,15 +44,12 @@ void App::run() {
         cloud.cloudStuff();
         info("Button: %s", btn->get() ? "released" : "pressed");
 
-        switch ((i % 6) / 2) {
+        switch ((i % 4) / 2) {
         case 0:
             ledRed->toggle();
             break;
         case 1:
             ledGreen->toggle();
-            break;
-        case 2:
-            ledBlue->toggle();
             break;
         }
         i++;
