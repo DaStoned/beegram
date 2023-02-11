@@ -106,7 +106,7 @@ bool GpioImpl::addIsr(Isr isr, IntrTrig type) {
         err("Fail set intr trigger type: %u %s", ret, esp_err_to_name(ret));
         return false;
     }
-    ret = gpio_install_isr_service(0);
+    ret = gpio_install_isr_service(ESP_INTR_FLAG_LOWMED);
     if (ESP_OK != ret) {
         err("Fail install per-pin ISR service: %u %s", ret, esp_err_to_name(ret));
         return false;
