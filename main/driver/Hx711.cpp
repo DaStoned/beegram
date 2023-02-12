@@ -4,32 +4,35 @@
 
 namespace beegram {
 
-class Hx711 : public LoadSensor {
+/**
+ * Implementation of the Hx711 driver interface
+*/
+class Hx711Impl : public Hx711 {
 public:
-    Hx711() = default;
-    virtual bool init(unsigned int pinDout, unsigned int pinSck, ChanMode mode) override;
+    Hx711Impl() = default;
+    virtual bool init(unsigned int pinDout, unsigned int pinSck, Mode mode) override;
     virtual bool isReady() override;
     virtual int read() override;
 private:
     Gpio::Hnd _dout = nullptr;
     Gpio::Hnd _sck = nullptr;
-    ChanMode _mode = ChanMode::NONE;
+    Mode _mode = Mode::NONE;
 };
 
-bool Hx711::init(unsigned int pinDout, unsigned int pinSck, ChanMode mode) {
+bool Hx711Impl::init(unsigned int pinDout, unsigned int pinSck, Mode mode) {
     _dout = Gpio::create(pinDout, Gpio::Way::IN, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     _sck = Gpio::create(pinSck, Gpio::Way::OUT, Gpio::OutMode::PUSH_PULL, Gpio::Pull::NONE);
     _mode = mode;
-    return (_dout && _sck && ChanMode::NONE != _mode);
+    return (_dout && _sck && Mode::NONE != _mode);
 }
 
-bool Hx711::isReady() {
+bool Hx711Impl::isReady() {
     assert(_dout);
     return !_dout->get();
 }
 
-int Hx711::read() {
-    assert(_dout && _sck && ChanMode::NONE != _mode);
+int Hx711Impl::read() {
+    assert(_dout && _sck && Mode::NONE != _mode);
     if (!isReady()) {
         err("Not ready for reading");
         return 0;
@@ -48,8 +51,8 @@ int Hx711::read() {
     return value;
 }
 
-std::unique_ptr<LoadSensor> LoadSensor::create() {
-    return std::make_unique<Hx711>();
+std::unique_ptr<Hx711> Hx711::create() {
+    return std::make_unique<Hx711Impl>();
 }
 
 } // namespace

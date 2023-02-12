@@ -34,9 +34,9 @@ void App::run() {
         err("Fail add ISR to button");
     }
 
-    auto loadSensor = LoadSensor::create();
+    auto loadSensor = Hx711::create();
     assert(loadSensor);
-    if (!loadSensor->init(PIN_LOADSENSOR_DOUT, PIN_LOADSENSOR_SCK, LoadSensor::CH_A_GN64)) {
+    if (!loadSensor->init(PIN_LOADSENSOR_DOUT, PIN_LOADSENSOR_SCK, Hx711::Mode::CH_A_GN64)) {
         err("Fail init load sensor");
     }
     
