@@ -29,10 +29,10 @@ void App::run() {
     assert(ledBlue);
     auto btn = Gpio::create(PIN_BUTTON, Gpio::Way::IN, Gpio::OutMode::PUSH_PULL, Gpio::Pull::UP);
     assert(btn);
-    auto onEdge = [&]() { ledBlue->toggle(); }; // Not thread safe. No debouncing.
-    if (!btn->addIsr(onEdge, Gpio::IntrTrig::ANY_EDGE)) {
-        err("Fail add ISR to button");
-    }
+    // auto onEdge = [&]() { ledBlue->toggle(); }; // Not thread safe. No debouncing.
+    // if (!btn->addIsr(onEdge, Gpio::IntrTrig::ANY_EDGE)) {
+    //     err("Fail add ISR to button");
+    // }
 
     auto loadSensor = Hx711::create();
     assert(loadSensor);
@@ -43,7 +43,6 @@ void App::run() {
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         cloud.cloudStuff();
-        while (!loadSensor->isReady()) {};
         int sample = loadSensor->read();
         info("Load sensor sample: 0x%06X (%d)", sample, sample);
 

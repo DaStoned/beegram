@@ -8,6 +8,8 @@
 #include <cinttypes>
 #include <functional>
 
+#include "Interrupt.hpp"
+
 namespace beegram {
 
 /**
@@ -19,8 +21,6 @@ public:
     using Pin = unsigned int;
     /// @brief Handle for a GPIO pin object
     using Hnd = std::unique_ptr<Gpio>;
-    /// @brief Function type that's accepted as interrupt service routine
-    using Isr = std::function<void()>;
     /// @brief Configure pin direction (can be simultaneously input and output)
     enum Way : uint8_t {
         DISABLED = 0b00, ///< Pin is not used
@@ -70,7 +70,7 @@ public:
      * Read input value of GPIO pin
      * @return True for high level; false for low
     */
-    virtual bool get() = 0;
+    virtual bool get() const = 0;
 
     /**
      * Toggle output value of GPIO pin
@@ -83,7 +83,7 @@ public:
     */
     virtual void reset() = 0;
 
-    virtual bool addIsr(Isr isr, IntrTrig type) = 0;
+    virtual Interrupt::Hnd addIsr(const Interrupt::Isr& isr, IntrTrig type) = 0;
 
     /**
      * Allocate and configure a new instance of a GPIO pin object.
