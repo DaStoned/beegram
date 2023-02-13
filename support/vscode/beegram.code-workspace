@@ -70,7 +70,8 @@
 			"stdexcept": "cpp",
 			"stop_token": "cpp",
 			"thread": "cpp",
-			"typeinfo": "cpp"
+			"typeinfo": "cpp",
+			"optional": "cpp"
 		}
 	}
 }

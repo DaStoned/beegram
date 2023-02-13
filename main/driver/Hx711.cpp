@@ -76,7 +76,6 @@ int Hx711Impl::read() {
 
 bool Hx711Impl::sample(int* sampleOut) {
     if (!isReady()) {
-        err("Not ready for reading");
         return false;
     }
     *sampleOut = 0;
@@ -85,10 +84,15 @@ bool Hx711Impl::sample(int* sampleOut) {
         esp_rom_delay_us(1);
         _sck->set(true);
         esp_rom_delay_us(1);
-        if (i < 24) {
-            *sampleOut = (*sampleOut << 1) | (_dout->get() ? 1 : 0);
-        }
+        const bool bitValue = _dout->get();
         _sck->set(false);
+        if (i < 24) {
+            *sampleOut = (*sampleOut << 1) | (bitValue ? 1 : 0);
+        }
+    }
+    // Extend 2-s complement negative prefix from 24 to 32 bits
+    if (*sampleOut & 0x00800000) {
+        *sampleOut |= 0xFF000000;
     }
     return true;
 }
@@ -105,8 +109,8 @@ void Hx711Impl::run() {
                 err("Fail sample ADC");
             }
             ret = _intr->enable();
-            info("%d", _lastSample);
             assert(ret);
+            info("%d", _lastSample);
         }
     }
 }

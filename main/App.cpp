@@ -1,6 +1,7 @@
 #include "App.hpp"
 #include "Log.hpp"
 #include "Cloud.hpp"
+#include "Param.hpp"
 #include "driver/Gpio.hpp"
 #include "driver/Hx711.hpp"
 
@@ -33,6 +34,15 @@ void App::run() {
     // if (!btn->addIsr(onEdge, Gpio::IntrTrig::ANY_EDGE)) {
     //     err("Fail add ISR to button");
     // }
+
+    auto param = Param::create("nvs", "params");
+    assert(param);
+    auto bootCount = param->getU32("bootCount", 0);
+    if (bootCount) {
+        info("Boot count: %lu", bootCount.value());
+        bool ret = param->setU32("bootCount", bootCount.value() + 1);
+        assert(ret);
+    }
 
     auto loadSensor = Hx711::create();
     assert(loadSensor);
