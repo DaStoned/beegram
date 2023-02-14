@@ -3,6 +3,7 @@
 #include "Log.hpp"
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "freertos/event_groups.h"
 
 namespace beegram {
@@ -110,7 +111,7 @@ void Hx711Impl::run() {
             }
             ret = _intr->enable();
             assert(ret);
-            info("%d", _lastSample);
+            trace("%d", _lastSample);
         }
     }
 }

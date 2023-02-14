@@ -66,4 +66,10 @@ static_assert(moduleName.length() < 100);
 #define debug(args...) ESP_LOGD(logPrefix.str(), args)
 #define trace(args...) ESP_LOGV(logPrefix.str(), args)
 
+#define err_dump(buf, len) ESP_LOG_BUFFER_HEXDUMP(logPrefix.str(), buf, len, ESP_LOG_ERROR)
+#define warn_dump(buf, len) ESP_LOG_BUFFER_HEXDUMP(logPrefix.str(), buf, len, ESP_LOG_WARN)
+#define info_dump(buf, len) ESP_LOG_BUFFER_HEXDUMP(logPrefix.str(), buf, len, ESP_LOG_INFO)
+#define debug_dump(buf, len) ESP_LOG_BUFFER_HEXDUMP(logPrefix.str(), buf, len, ESP_LOG_DEBUG)
+#define trace_dump(buf, len) ESP_LOG_BUFFER_HEXDUMP(logPrefix.str(), buf, len, ESP_LOG_VERBOSE)
+
 #endif // _LOG_HPP_

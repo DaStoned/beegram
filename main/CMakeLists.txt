@@ -4,6 +4,7 @@ idf_component_register(
         "App.cpp"
         "Cloud.cpp"
         "Param.cpp"
+        "Ush.cpp"
         "driver/Gpio.cpp"
         "driver/Hx711.cpp"
     INCLUDE_DIRS

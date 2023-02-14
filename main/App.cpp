@@ -2,6 +2,7 @@
 #include "Log.hpp"
 #include "Cloud.hpp"
 #include "Param.hpp"
+#include "Ush.hpp"
 #include "driver/Gpio.hpp"
 #include "driver/Hx711.hpp"
 
@@ -49,6 +50,13 @@ void App::run() {
     if (!loadSensor->init(PIN_LOADSENSOR_DOUT, PIN_LOADSENSOR_SCK, Hx711::Mode::CH_A_GN64)) {
         err("Fail init load sensor");
     }
+
+    auto ush = Ush::create();
+    assert(ush);
+    if (!ush->start(0)) {
+        err("Fail start ush");
+    }
+
     
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(1000));
