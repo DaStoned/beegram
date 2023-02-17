@@ -71,7 +71,8 @@
 			"stop_token": "cpp",
 			"thread": "cpp",
 			"typeinfo": "cpp",
-			"optional": "cpp"
+			"optional": "cpp",
+			"span": "cpp"
 		}
 	}
 }

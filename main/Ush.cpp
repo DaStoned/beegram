@@ -8,6 +8,8 @@
 
 #include <cinttypes>
 #include <span>
+#include <vector>
+#include <cctype>
 
 using namespace std;
 
@@ -22,10 +24,15 @@ private:
     static constexpr size_t EV_QUEUE_LEN = 10;
     static constexpr size_t USH_STACK_LEN_B = 4 * 1024;
     static constexpr size_t USH_STACK_PRIO = tskIDLE_PRIORITY;
+    static constexpr size_t LINE_BUF_MAX_LEN = 128;
+
     void onData(const span<const uint8_t>& data);
+    void parse();
     void run();
+
     uart_port_t _uart = 0;
     QueueHandle_t _evq = nullptr;
+    vector<char> _line;
 };
 
 bool UshImpl::start(unsigned int uart) {
@@ -67,6 +74,24 @@ bool UshImpl::start(unsigned int uart) {
 
 void UshImpl::onData(const span<const uint8_t>& data) {
     info_dump(data.data(), data.size_bytes());
+    for (uint8_t chr: data) {
+        info("%c", chr); 
+        if (chr == '\n' || chr == '\r') {
+            parse();
+            _line.clear();
+        } else if (_line.size() >= LINE_BUF_MAX_LEN) {
+            warn("Line buffer full (%u B)", _line.size());
+
+        } else if (isprint(chr)) {
+            _line.push_back(chr);
+        } else {
+            warn("Ignore char 0x%02X", chr);
+        }
+    }
+}
+
+void UshImpl::parse() {
+    info("Parse line [%s]", _line.data());
 }
 
 void UshImpl::run() {
