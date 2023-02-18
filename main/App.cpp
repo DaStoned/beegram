@@ -3,6 +3,7 @@
 #include "Cloud.hpp"
 #include "Param.hpp"
 #include "Ush.hpp"
+#include "Bosun.hpp"
 #include "driver/Gpio.hpp"
 #include "driver/Hx711.hpp"
 
@@ -51,7 +52,10 @@ void App::run() {
         err("Fail init load sensor");
     }
 
-    auto ush = Ush::create();
+    auto bosun = Bosun::create();
+    assert(bosun);
+
+    auto ush = Ush::create(*bosun);
     assert(ush);
     if (!ush->start(0)) {
         err("Fail start ush");

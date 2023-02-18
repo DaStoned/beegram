@@ -1,5 +1,6 @@
 #include "Ush.hpp"
 #include "Log.hpp"
+#include "Bosun.hpp"
 
 #include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
@@ -8,6 +9,7 @@
 
 #include <cinttypes>
 #include <span>
+#include <deque>
 #include <vector>
 #include <cctype>
 
@@ -17,6 +19,9 @@ namespace beegram {
 
 class UshImpl : public Ush {
 public:
+    UshImpl(Bosun& bosun)
+    : _bosun(bosun)
+    {}
     virtual bool start(unsigned int uart) override;
 private:
     static constexpr size_t RX_BUF_LEN_B = 256;
@@ -27,12 +32,12 @@ private:
     static constexpr size_t LINE_BUF_MAX_LEN = 128;
 
     void onData(const span<const uint8_t>& data);
-    void parse();
     void run();
 
     uart_port_t _uart = 0;
     QueueHandle_t _evq = nullptr;
-    vector<char> _line;
+    deque<char> _line;
+    Bosun& _bosun;
 };
 
 bool UshImpl::start(unsigned int uart) {
@@ -72,26 +77,56 @@ bool UshImpl::start(unsigned int uart) {
     return true;
 }
 
+deque<char>& trimSpace(deque<char>& q) {
+    while (q.size() > 0 && isspace(q.front())) {
+        q.pop_front();
+    }
+    while (q.size() > 0 && isspace(q.back())) {
+        q.pop_back();
+    }
+    return q;
+}
+
+static vector<string> splitWords(deque<char>& line) {
+    vector<string> words;
+    while (line.size()) {
+        while (line.size() && isspace(line.front())) {
+            line.pop_front();
+        }
+        string word;
+        while (line.size() && !isspace(line.front())) {
+            word.append({line.front()});
+            line.pop_front();
+        }
+        if (word.size()) {
+            words.emplace_back(word);
+        }
+    }
+    return words;
+}
+
 void UshImpl::onData(const span<const uint8_t>& data) {
     info_dump(data.data(), data.size_bytes());
     for (uint8_t chr: data) {
         info("%c", chr); 
         if (chr == '\n' || chr == '\r') {
-            parse();
+            info("Parse line [%s]", string(_line.begin(), _line.end()).c_str());
+            auto words = splitWords(trimSpace(_line));
+            for (auto& w : words) {
+                info("Found: %s", w.c_str());
+            }
+            if (words.size()) {
+                _bosun.parseRun(words);
+            }
             _line.clear();
         } else if (_line.size() >= LINE_BUF_MAX_LEN) {
             warn("Line buffer full (%u B)", _line.size());
-
         } else if (isprint(chr)) {
-            _line.push_back(chr);
+            _line.emplace_back(chr);
         } else {
             warn("Ignore char 0x%02X", chr);
         }
     }
-}
-
-void UshImpl::parse() {
-    info("Parse line [%s]", _line.data());
 }
 
 void UshImpl::run() {
@@ -144,8 +179,8 @@ void UshImpl::run() {
     }
 }
 
-std::unique_ptr<Ush> Ush::create() {
-    return std::make_unique<UshImpl>();
+unique_ptr<Ush> Ush::create(Bosun& bosun) {
+    return make_unique<UshImpl>(bosun);
 }
 
 
