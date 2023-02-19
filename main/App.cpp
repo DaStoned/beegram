@@ -54,6 +54,9 @@ void App::run() {
 
     auto bosun = Bosun::create();
     assert(bosun);
+    if (!bosun->init()) {
+        err("Fail init Bosun");
+    }
 
     auto ush = Ush::create(*bosun);
     assert(ush);

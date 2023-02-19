@@ -106,17 +106,16 @@ static vector<string> splitWords(deque<char>& line) {
 }
 
 void UshImpl::onData(const span<const uint8_t>& data) {
-    info_dump(data.data(), data.size_bytes());
+    trace_dump(data.data(), data.size_bytes());
     for (uint8_t chr: data) {
-        info("%c", chr); 
         if (chr == '\n' || chr == '\r') {
-            info("Parse line [%s]", string(_line.begin(), _line.end()).c_str());
+            debug("Parse line [%s]", string(_line.begin(), _line.end()).c_str());
             auto words = splitWords(trimSpace(_line));
             for (auto& w : words) {
                 info("Found: %s", w.c_str());
             }
             if (words.size()) {
-                _bosun.parseRun(words);
+                _bosun.runCmd(words);
             }
             _line.clear();
         } else if (_line.size() >= LINE_BUF_MAX_LEN) {
@@ -140,11 +139,12 @@ void UshImpl::run() {
         switch (ev.type) {
         case UART_DATA: {
             int read;
-            info("UART_DATA len=%u%s", ev.size, ev.timeout_flag ? " RX TOUT" : "");
+            trace("UART_DATA len=%u%s", ev.size, ev.timeout_flag ? " RX TOUT" : "");
             // Suck the RX buffer dry
             do {
                 read = uart_read_bytes(_uart, buf, sizeof(buf), 0);
                 if (read > 0) {
+                    uart_write_bytes(_uart, buf, read); // Echo back
                     onData(span{buf, static_cast<size_t>(read)});
                 } else if (read < 0) {
                     warn("UART read error: %d", read);
