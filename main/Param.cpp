@@ -14,8 +14,10 @@ public:
     {}
     virtual optional<int32_t> getI32(const char* key, optional<int32_t> fb = nullopt) override;
     virtual optional<uint32_t> getU32(const char* key, optional<uint32_t> fb = nullopt) override;
+    virtual optional<float> getFloat(const char* key, optional<float> fb = nullopt) override;
     virtual bool setI32(const char* key, int32_t val) override;
     virtual bool setU32(const char* key, uint32_t val) override;
+    virtual bool setFloat(const char* key, float val) override;
 private:
     nvs_handle_t _nvs;
 };
@@ -38,12 +40,30 @@ optional<uint32_t> ParamImpl::getU32(const char* key, optional<uint32_t> fb) {
     }
 }
 
+optional<float> ParamImpl::getFloat(const char* key, optional<float> fb) {
+    optional<uint32_t> ret;
+    if (fb) {
+        ret = getU32(key, *reinterpret_cast<uint32_t*>(&(fb.value())));
+    } else {
+        ret = getU32(key, nullopt);
+    }
+    if (ret) {
+        return *reinterpret_cast<float*>(&(ret.value()));
+    } else {
+        return nullopt;
+    }
+}
+
 bool ParamImpl::setI32(const char* key, int32_t val) {
     return ESP_OK == nvs_set_i32(_nvs, key, val);
 }
 
 bool ParamImpl::setU32(const char* key, uint32_t val) {
     return ESP_OK == nvs_set_u32(_nvs, key, val);
+}
+
+bool ParamImpl::setFloat(const char* key, float val) {
+    return setU32(key, *reinterpret_cast<uint32_t*>(&val));
 }
 
 Param::Hnd Param::create(const char* part, const char* ns) {

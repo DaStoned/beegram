@@ -35,10 +35,10 @@ void BosunImpl::runCmd(const vector<string>& words) const {
 bool BosunImpl::init() {
     addCmd(
         "help", Cmd(
-            "Print all commands and their help messages", 
+            "\tPrint all commands and their help messages", 
             [this](const vector<string>& args) { 
                 for (auto& [key, val]: _cmds) {
-                    printf("%-8s %s\n", key.c_str(), val.getHelp().data());
+                    printf("%s %s\n", key.c_str(), val.getHelp().data());
                 }
             }
         )

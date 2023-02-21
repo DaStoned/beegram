@@ -4,6 +4,7 @@
 #include "Param.hpp"
 #include "Ush.hpp"
 #include "Bosun.hpp"
+#include "Scales.hpp"
 #include "driver/Gpio.hpp"
 #include "driver/Hx711.hpp"
 
@@ -64,7 +65,11 @@ void App::run() {
         err("Fail start ush");
     }
 
-    
+    auto scales = Scales::create(*param, *bosun, *loadSensor);
+    assert(scales);
+    if (!scales->init()) {
+        err("Fail init Scales");
+    }
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         cloud.cloudStuff();

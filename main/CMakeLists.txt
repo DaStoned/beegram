@@ -6,6 +6,7 @@ idf_component_register(
         "Param.cpp"
         "Ush.cpp"
         "Bosun.cpp"
+        "Scales.cpp"
         "driver/Gpio.cpp"
         "driver/Hx711.cpp"
     INCLUDE_DIRS
