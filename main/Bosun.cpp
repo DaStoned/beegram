@@ -6,17 +6,18 @@
 using namespace std;
 
 namespace beegram {
+
 class BosunImpl : public Bosun {
 public:
-    virtual void addCmd(const Cmd& cmd) override;
+    virtual void addCmd(const std::string_view& name, const Cmd& cmd) override;
     virtual void runCmd(const vector<string>& words) const override;
     virtual bool init() override;
 private:
     map<string, Cmd> _cmds;
 };
 
-void BosunImpl::addCmd(const Cmd& cmd) {
-    _cmds.emplace(cmd.getName(), cmd);
+void BosunImpl::addCmd(const std::string_view& name, const Cmd& cmd) {
+    _cmds.emplace(name, cmd);
 }
 
 void BosunImpl::runCmd(const vector<string>& words) const {
@@ -33,10 +34,9 @@ void BosunImpl::runCmd(const vector<string>& words) const {
 
 bool BosunImpl::init() {
     addCmd(
-        Cmd(
-            "help", 
+        "help", Cmd(
             "Print all commands and their help messages", 
-            [this](const vector<string>&) { 
+            [this](const vector<string>& args) { 
                 for (auto& [key, val]: _cmds) {
                     printf("%-8s %s\n", key.c_str(), val.getHelp().data());
                 }
