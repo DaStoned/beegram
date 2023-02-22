@@ -74,7 +74,8 @@ void App::run() {
         vTaskDelay(pdMS_TO_TICKS(1000));
         cloud.cloudStuff();
         int sample = loadSensor->read();
-        info("Load sensor sample: 0x%06X (%d)", sample, sample);
+        float weight = scales->weigh();
+        info("Weight: %0.3f, load: 0x%06X (%d)", weight, sample, sample);
 
         switch ((i % 4) / 2) {
         case 0:
