@@ -23,6 +23,7 @@ private:
     static constexpr const char* PKEY_CALIB_LOAD_LOW = "scacall_load";
     static constexpr const char* PKEY_CALIB_WEIGHT_HIGH = "scacalh_weight";
     static constexpr const char* PKEY_CALIB_LOAD_HIGH = "scacalh_load";
+    static constexpr const char* PKEY_TARE_LOAD = "scale_tare";
     static constexpr float MIN_CALIB_WEIGHT = 0.0;
     static constexpr float MAX_CALIB_WEIGHT = 400.0;
 
@@ -41,7 +42,7 @@ bool ScalesImpl::calib(float weight, const char* pkeyLoad, const char* pkeyWeigt
     }
     const int load = _loadSensor.read();
     info("Scales calib weight=%f load=%d", weight, load);
-    if (_param.setFloat(pkeyLoad, weight) && _param.setFloat(pkeyWeigth, load)) {
+    if (_param.setFloat(pkeyLoad, weight) && _param.setI32(pkeyWeigth, load)) {
         info("Calib saved");
         return true;
     } else {
@@ -77,6 +78,17 @@ bool ScalesImpl::init() {
             }
         )
     );
+    _bosun.addCmd(
+        "scatare", Cmd(
+            "\n\tTare scales to 0 kg",
+            [this](const vector<string>& args) {
+                fflush(stdout);
+                const int load = _loadSensor.read();
+                info("Scales tare %d", load);
+                _param.setI32(PKEY_TARE_LOAD, load);
+            }
+        )
+    );
     return true;
 }
 
@@ -86,14 +98,28 @@ bool ScalesImpl::tare() {
 }
 
 float ScalesImpl::weigh() {
-    const float x1 = _param.getFloat(PKEY_CALIB_LOAD_LOW, -207124.0F).value();
-    const float x2 = _param.getFloat(PKEY_CALIB_LOAD_HIGH, -593571.0F).value();
+    // Linear relation between load and weight is y = A * x + B. We need to
+    // find the values of A and B. Assuming a calibration with two known
+    // points, i.e. (load, weight) values (x_1, y_1) and (x_2, y_2) we can
+    // find A = (y_2 - y_1)/(x_2 - x_1) and B = y_1 - (x_1 * A)
+    const int x1 = _param.getI32(PKEY_CALIB_LOAD_LOW, -207124).value();
     const float y1 = _param.getFloat(PKEY_CALIB_WEIGHT_LOW, 0.0F).value();
+    const int x2 = _param.getI32(PKEY_CALIB_LOAD_HIGH, -593571).value();
     const float y2 = _param.getFloat(PKEY_CALIB_WEIGHT_HIGH, 32.0F).value();
-    const float rise = (y2 - y1)/(x2 - x1);
-    const float offset = y1 - (x1 * rise);
-    const float weight = _loadSensor.read() * rise + offset;
-    return weight; // TODO: add tare offset
+    const float a = (y2 - y1)/(x2 - x1);
+    const float b = y1 - (x1 * a);
+    const auto tare = _param.getI32(PKEY_TARE_LOAD);
+    if (tare.has_value()) {
+        // If we've set a load tare value x_t (value of x where y must be 
+        // equal to 0), we need to first find the value of x when y_0 == 0:
+        // x_0 = (y_0 - B) / A = -B / A. Now tared y_t can be found with:
+        // y_t = A * (x - (x_t - x_0)) + B
+        const float x0 = -b / a;
+        return a * (_loadSensor.read() - (tare.value() - x0)) + b;
+    } else {
+        // No tare, simple
+        return a * _loadSensor.read() + b;
+    }
 }
 
 Scales::Hnd Scales::create(Param& param, Bosun& bosun, Hx711& loadSensor) {
