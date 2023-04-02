@@ -40,12 +40,11 @@ void App::run() {
 
     auto param = Param::create("nvs", "params");
     assert(param);
-    auto bootCount = param->getU32("bootCount", 0);
-    if (bootCount) {
-        info("Boot count: %lu", bootCount.value());
-        bool ret = param->setU32("bootCount", bootCount.value() + 1);
-        assert(ret);
-    }
+    
+    uint32_t bootCount = param->getU32("bootCount").value_or(0);
+    info("Boot count: %lu", bootCount);
+    bool ret = param->setU32("bootCount", bootCount + 1);
+    assert(ret);
 
     auto loadSensor = Hx711::create();
     assert(loadSensor);

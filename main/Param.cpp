@@ -12,9 +12,9 @@ public:
     ParamImpl(nvs_handle_t nvs)
     : _nvs(nvs)
     {}
-    virtual optional<int32_t> getI32(const char* key, optional<int32_t> fb = nullopt) override;
-    virtual optional<uint32_t> getU32(const char* key, optional<uint32_t> fb = nullopt) override;
-    virtual optional<float> getFloat(const char* key, optional<float> fb = nullopt) override;
+    virtual optional<int32_t> getI32(const char* key) override;
+    virtual optional<uint32_t> getU32(const char* key) override;
+    virtual optional<float> getFloat(const char* key) override;
     virtual bool setI32(const char* key, int32_t val) override;
     virtual bool setU32(const char* key, uint32_t val) override;
     virtual bool setFloat(const char* key, float val) override;
@@ -22,33 +22,29 @@ private:
     nvs_handle_t _nvs;
 };
 
-optional<int32_t> ParamImpl::getI32(const char* key, optional<int32_t> fb) {
+optional<int32_t> ParamImpl::getI32(const char* key) {
     int32_t val;
     if (ESP_OK == nvs_get_i32(_nvs, key, &val)) {
         return val;
     } else {
-        return fb;
+        return nullopt;
     }
 }
 
-optional<uint32_t> ParamImpl::getU32(const char* key, optional<uint32_t> fb) {
+optional<uint32_t> ParamImpl::getU32(const char* key) {
     uint32_t val;
     if (ESP_OK == nvs_get_u32(_nvs, key, &val)) {
         return val;
     } else {
-        return fb;
+        return nullopt;
     }
 }
 
-optional<float> ParamImpl::getFloat(const char* key, optional<float> fb) {
-    optional<uint32_t> ret;
-    if (fb) {
-        ret = getU32(key, *reinterpret_cast<uint32_t*>(&(fb.value())));
-    } else {
-        ret = getU32(key, nullopt);
-    }
-    if (ret) {
-        return *reinterpret_cast<float*>(&(ret.value()));
+optional<float> ParamImpl::getFloat(const char* key) {
+    // NVS doesn't support floats, so we use uint32 as storage
+    uint32_t val;
+    if (ESP_OK == nvs_get_u32(_nvs, key, &val)) {
+        return static_cast<float>(val);
     } else {
         return nullopt;
     }

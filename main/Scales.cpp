@@ -102,10 +102,10 @@ float ScalesImpl::weigh() {
     // find the values of A and B. Assuming a calibration with two known
     // points, i.e. (load, weight) values (x_1, y_1) and (x_2, y_2) we can
     // find A = (y_2 - y_1)/(x_2 - x_1) and B = y_1 - (x_1 * A)
-    const int x1 = _param.getI32(PKEY_CALIB_LOAD_LOW, -207124).value();
-    const float y1 = _param.getFloat(PKEY_CALIB_WEIGHT_LOW, 0.0F).value();
-    const int x2 = _param.getI32(PKEY_CALIB_LOAD_HIGH, -593571).value();
-    const float y2 = _param.getFloat(PKEY_CALIB_WEIGHT_HIGH, 32.0F).value();
+    const int x1 = _param.getI32(PKEY_CALIB_LOAD_LOW).value_or(-207124);
+    const float y1 = _param.getFloat(PKEY_CALIB_WEIGHT_LOW).value_or(0.0F);
+    const int x2 = _param.getI32(PKEY_CALIB_LOAD_HIGH).value_or(-593571);
+    const float y2 = _param.getFloat(PKEY_CALIB_WEIGHT_HIGH).value_or(32.0F);
     const float a = (y2 - y1)/(x2 - x1);
     const float b = y1 - (x1 * a);
     const auto tare = _param.getI32(PKEY_TARE_LOAD);
