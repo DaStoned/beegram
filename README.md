@@ -19,7 +19,7 @@ Download ESP IDF source and install toolchain under the project directory:
 ```
 $ export WORKROOT="$HOME/projects/hobby/beegram" && export IDF_TOOLS_PATH="$WORKROOT/lib/bin/espressif" IDF_PATH="$WORKROOT/lib/src/esp-idf"
 $ mkdir -p "$WORKROOT/lib/src" && cd "$WORKROOT/lib/src"
-$ git clone -j8 -b v5.0.1 --recursive https://github.com/espressif/esp-idf.git
+$ git clone -j8 -b v5.4.1 --recursive https://github.com/espressif/esp-idf.git
 $ cd esp-idf
 $ ./install.sh
 $ . export.sh

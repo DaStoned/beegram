@@ -22,7 +22,7 @@ public:
     UshImpl(Bosun& bosun)
     : _bosun(bosun)
     {}
-    virtual bool start(unsigned int uart) override;
+    virtual bool start(uart_port_t uart) override;
 private:
     static constexpr size_t RX_BUF_LEN_B = 256;
     static constexpr size_t TX_BUF_LEN_B = 256;
@@ -34,13 +34,13 @@ private:
     void onData(const span<const uint8_t>& data);
     void run();
 
-    uart_port_t _uart = 0;
+    uart_port_t _uart = UART_NUM_0;
     QueueHandle_t _evq = nullptr;
     deque<char> _line;
     Bosun& _bosun;
 };
 
-bool UshImpl::start(unsigned int uart) {
+bool UshImpl::start(uart_port_t uart) {
     _uart = uart;
     uart_config_t uart_config = {
         .baud_rate = 115200,
@@ -50,6 +50,10 @@ bool UshImpl::start(unsigned int uart) {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 0,
         .source_clk = UART_SCLK_DEFAULT,
+        .flags = {
+            .allow_pd = 1,
+            .backup_before_sleep = 1
+        },
     };
     esp_err_t ret = uart_param_config(_uart, &uart_config);
     if (ESP_OK != ret) {

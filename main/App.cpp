@@ -60,7 +60,7 @@ void App::run() {
 
     auto ush = Ush::create(*bosun);
     assert(ush);
-    if (!ush->start(0)) {
+    if (!ush->start(UART_NUM_0)) {
         err("Fail start ush");
     }
 
